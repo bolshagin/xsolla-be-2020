@@ -61,6 +61,8 @@ func (s *APIServer) configureStore() error {
 func (s *APIServer) configureRouter() {
 	s.router.HandleFunc("/session", s.handleSessionsCreate()).Methods("POST")
 	s.router.HandleFunc("/pay", s.handlePayment()).Methods("POST")
+	s.router.HandleFunc("/stat", checkJWTToken(s, s.handleSessionsStats())).Methods("GET")
+	s.router.HandleFunc("/get-token", s.handleTokenCreate()).Methods("GET")
 }
 
 func getConnectionString(config *Config) string {

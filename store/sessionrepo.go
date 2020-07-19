@@ -9,6 +9,7 @@ import (
 
 var (
 	errNoSession = errors.New("there is no session with given token")
+	errNoStats   = errors.New("there is no created sessions with given period")
 )
 
 type SessionRepo struct {
@@ -68,4 +69,32 @@ func (r *SessionRepo) CommitSession(s *model.Session, closedAt time.Time) error 
 	}
 
 	return nil
+}
+
+func (r *SessionRepo) GetStats(begin, end time.Time) ([]model.Session, error) {
+	rows, err := r.store.db.Query(
+		"SELECT Amount, Purpose, CreatedAt, ClosedAt FROM sessions WHERE CreatedAt BETWEEN ? AND ? ORDER BY CreatedAt DESC",
+		begin,
+		end,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var sessions []model.Session
+	for rows.Next() {
+		var s model.Session
+		if err := rows.Scan(&s.Amount, &s.Purpose, &s.CreatedAt, &s.ClosedAt); err != nil {
+			return nil, err
+		}
+		sessions = append(sessions, s)
+	}
+
+	if sessions == nil {
+		return nil, errNoStats
+	}
+
+	return sessions, nil
 }
