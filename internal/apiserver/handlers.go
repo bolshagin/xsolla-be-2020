@@ -254,11 +254,11 @@ func (s *APIServer) now() time.Time {
 func (s *APIServer) parseDates(begin, end string) (time.Time, time.Time, error) {
 	dateB, err := time.Parse(layout, begin)
 	if err != nil {
-		return time.Time{}, time.Time{}, err
+		return zeroDate, zeroDate, err
 	}
 	dateE, err := time.Parse(layout, end)
 	if err != nil {
-		return time.Time{}, time.Time{}, err
+		return zeroDate, zeroDate, err
 	}
 	return dateB, dateE, nil
 }
